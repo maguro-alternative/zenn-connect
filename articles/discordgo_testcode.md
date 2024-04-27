@@ -1,5 +1,5 @@
 ---
-title: "discordgoでテストコードを書く" # 記事のタイトル
+title: "discordgoでE2Eのテストコードを書く" # 記事のタイトル
 emoji: "😸" # アイキャッチとして使われる絵文字（1文字だけ）
 type: "tech" # tech: 技術記事 / idea: アイデア記事
 topics: [] # タグ。["markdown", "rust", "aws"]のように指定する
@@ -152,3 +152,44 @@ func TestAdd(t *testing.T) {
 このように、interfaceを使うことで、結合テストを行いやすくすることができます。
 
 :::
+
+# discordgoでのテストコードの書き方
+
+ディレクトリ構成です。以下のGitHubリポジトリを参考にしています。
+
+https://github.com/maguro-alternative/remake_bot
+
+```
+├── bot                         // DiscordBotを動かすためのディレクトリ
+│   ├── cogs                    // DiscordBotのコグ
+|   ├── commands                // スラッシュコマンド
+│   ├── config                  // 環境変数設定ファイル
+│   └── main.go
+```
+
+## 共通事項
+当たり前ですが、単体テストはdiscordgo側が行っています。
+そのため、今回書くのは**結合テスト**です。
+
+discordgoでは、```discordgo.Session.AddHandler```でイベントを受け取った際の処理を登録できます。
+しかし、引数と戻り値の指定があり、テストコードを書くことが難しいです。
+
+:::details 何で書くのが難しいの？
+```go
+s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
+    // ここに処理を書く
+})
+```
+
+上記のコードは、```s```と```m```を引数に取りますが、**戻り値と引数をこれ以上追加するとエラーが発生します。**
+どのような関数なのかでイベントを判別しているためです。
+
+結合テストでは、正しく処理できたか、想定通りのエラーが発生するかを確認する必要があります。
+
+最低限```error```を返さないと、テストで確認できるものがありません。
+:::
+
+## cogsのテストコードの書き方
+
+
+

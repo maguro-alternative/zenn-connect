@@ -156,6 +156,7 @@ func TestAdd(t *testing.T) {
 # discordgoでのテストコードの書き方
 
 ディレクトリ構成です。以下のGitHubリポジトリを参考にしています。
+ここを見ながら進めていきます。
 
 https://github.com/maguro-alternative/remake_bot
 
@@ -190,6 +191,51 @@ s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
 :::
 
 ## cogsのテストコードの書き方
+cogsは、discordbotの機能を追加するためのディレクトリです。
+```cog_handler.go```というファイルに、コグの登録処理を記述します。
 
+https://github.com/maguro-alternative/remake_bot/blob/main/bot/cogs/cog_handler.go
+
+```cogHandler```という構造体があります。
+```db```はデータベース操作、```client```はhttp通信を行うためのクライアントを追加しています。
+
+```cogHandler```には```onMessageCreate```というメゾットがあり、```discordgo.MessageCreate```イベントを受け取った際の処理を記述します。
+
+https://github.com/maguro-alternative/remake_bot/blob/main/bot/cogs/on_message_create.go
+
+**長いですね...**
+とりあえず注目してほしいところは、```onMessageCreate```メゾットです。
+
+```go
+func (h *cogHandler) onMessageCreate(s *discordgo.Session, vs *discordgo.MessageCreate) {
+	ctx := context.Background()
+	repo := repository.NewRepository(h.db)
+	ffmpeg := onMessageCreate.NewFfmpeg(ctx)
+	err := onMessageCreateFunc(ctx, h.client, repo, ffmpeg, s, vs)
+	if err != nil {
+		slog.ErrorContext(ctx, "OnMessageCreate Error", "Error:", err.Error())
+	}
+}
+```
+
+本来ここでは、```discordgo.MessageCreate```イベントを受け取り、処理を行います。
+しかし、テストコードを書くためには、```error```を返す必要があります。
+
+そこで本来の処理を書き込んだ```onMessageCreateFunc```メゾットを作成します。
+
+```onMessageCreate```メゾットは、```onMessageCreateFunc```メゾットを呼び出し、```error```を返します。
+
+```go
+func onMessageCreateFunc(
+	ctx context.Context,
+	client *http.Client,
+	repo repository.RepositoryFunc,
+	ffmpeg onMessageCreate.FfmpegInterface,
+	s mock.Session,
+	vs *discordgo.MessageCreate,
+) error {
+    // 本来の処理
+}
+```
 
 

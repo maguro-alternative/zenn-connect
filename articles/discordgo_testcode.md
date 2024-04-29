@@ -223,7 +223,6 @@ cogsは、discordbotの機能を追加するためのディレクトリです。
 https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/cogs/cog_handler.go
 
 ```cogHandler```という構造体があります。
-```client```はhttp通信を行うためのクライアントを追加しています。
 
 ```cogHandler```には```onMessageCreate```というメゾットがあり、```discordgo.MessageCreate```イベントを受け取った際の処理を記述します。
 

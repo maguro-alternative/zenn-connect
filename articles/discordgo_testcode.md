@@ -338,3 +338,10 @@ https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/comman
 テストを実行して、正しく処理が行われているか確認してみましょう。
 
 ![](https://storage.googleapis.com/zenn-user-upload/c617669b40de-20240429.png)
+
+# まとめ
+今回は、discordgoでテストコードを書く方法について解説しました。
+動作確認と挙動の理解が深まるので、おすすめです。
+
+今回はあくまでも一例で、他にも様々なテストコードの書き方があります。
+用途に応じて適切なテストコードを書いていきましょう。

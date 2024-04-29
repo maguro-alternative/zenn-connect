@@ -327,3 +327,14 @@ func(s mock.Session, i *discordgo.InteractionCreate) (*discordgo.InteractionResp
 ```ping```は以下のような仕様です。
 - 実行されると```pong```を返す。
 - ```response```オプションを適応すると、そのオプションで指定した文字のメッセージを返す。
+
+また、discordgoの仕様上、複数のスラッシュコマンドが登録されている場合、**コマンド名関係なくすべて実行してしまいます。**
+そのため、コマンド名が違う場合のテストケースも含めて書きます。
+
+https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/commands/ping_test.go
+
+これも```&mock.SessionMock```を引数に渡すことで、モックを使用してテストを行います。
+
+テストを実行して、正しく処理が行われているか確認してみましょう。
+
+![](https://storage.googleapis.com/zenn-user-upload/c617669b40de-20240429.png)

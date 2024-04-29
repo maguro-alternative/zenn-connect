@@ -297,21 +297,33 @@ https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/comman
 コマンドが登録されているかどうかを確認するために、テストコードを書いていきます。
 確認しているのは以下の項目です。
 
-- pingコマンドが登録されているか
-- 同じコマンド名は登録できないか
-- 登録に失敗した場合、構造体にデータが格納されていないか
-- コマンドが削除されているか
-- 未登録の場合、エラーが発生するか
+- pingコマンドが登録されているか。
+- 同じコマンド名は登録できないか。
+- 登録に失敗した場合、構造体にデータが格納されていないか。
+- コマンドが削除されているか。
+- 未登録の場合、エラーが発生するか。
 
 https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/commands/command_handler_test.go
 
 
-cogと同様に```&mock.SessionMock```を引数に渡すことで、モックを使用してテストを行います。
+cogsと同様に```&mock.SessionMock```を引数に渡すことで、モックを使用してテストを行います。
 
 同じくテストを実行して、正しく処理が行われているか確認してみましょう。
 
 ![](https://storage.googleapis.com/zenn-user-upload/8172ad4d41a2-20240429.png)
 
 ### 実行のテスト
+スラッシュコマンドの処理は以下のように記述します。
 
 https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/commands/ping.go
+
+Optionはスラッシュコマンドのオプション(discord.go公式のサンプルコード参照)、Executorは実行する関数を指定します。
+Executorに格納する関数は以下のようなものです。
+スラッシュコマンドに対する返信とエラーを返します。
+```go
+func(s mock.Session, i *discordgo.InteractionCreate) (*discordgo.InteractionResponse, error)
+```
+
+```ping```は以下のような仕様です。
+- 実行されると```pong```を返す。
+- ```response```オプションを適応すると、そのオプションで指定した文字のメッセージを返す。

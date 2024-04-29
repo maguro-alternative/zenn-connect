@@ -255,3 +255,29 @@ https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/cogs/o
 
 ```&mock.SessionMock```を引数に渡すことで、モックを使用してテストを行います。
 実際に送信はされず、送信されたとしてレスポンスを返すようにしています。
+
+テストを実行して、正しく処理が行われているか確認してみましょう。
+
+![](https://storage.googleapis.com/zenn-user-upload/f9e1ecad8ecc-20240429.png)
+
+## commandsのテストコードの書き方
+
+commandsは、discordbotのスラッシュコマンドを追加するためのディレクトリです。
+```command_handler.go```というファイルに、スラッシュコマンドの登録処理を記述します。
+
+https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/commands/command_handler.go
+
+```commandRegister```関数でコマンドを登録し、```handler.commands```に格納します。
+```commandRemove```関数でコマンドを削除し、```handler.commands```内のデータも削除します。
+```getCommand```関数で```handler.commands```からコマンドを取得します。
+
+登録はDiscordとの通信以外にも、```handler.commands```に格納することで、どのコマンドが登録されているかを確認できます。
+コマンドが登録されているかどうかを確認するために、テストコードを書いていきます。
+確認しているのは以下の項目です。
+
+- pingコマンドが登録されているか
+- 同じコマンド名は登録できないか
+- コマンドが削除されているか
+- 未登録の場合、エラーが発生するか
+
+https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/commands/command_handler_test.go

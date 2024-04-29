@@ -173,6 +173,7 @@ https://github.com/maguro-alternative/discordgo-test-sample
 そのため、今回書くのは**結合テスト**です。
 
 結合テストのため、discordgoの機能を使っている部分をモック化します。
+```client```もモック化していますが、今回は使用しません。
 ```*discordgo.Session```は引数に指定せず、```mock.Session```というinterfaceを使用します。
 
 https://github.com/maguro-alternative/discordgo-test-sample/blob/main/testutil/mock/session.go

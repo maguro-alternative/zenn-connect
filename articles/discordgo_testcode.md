@@ -158,7 +158,7 @@ func TestAdd(t *testing.T) {
 ディレクトリ構成です。以下のGitHubリポジトリを参考にしています。
 ここを見ながら進めていきます。
 
-https://github.com/maguro-alternative/remake_bot
+https://github.com/maguro-alternative/discordgo-test-sample
 
 ```
 ├── bot                         // DiscordBotを動かすためのディレクトリ
@@ -172,10 +172,15 @@ https://github.com/maguro-alternative/remake_bot
 当たり前ですが、単体テストはdiscordgo側が行っています。
 そのため、今回書くのは**結合テスト**です。
 
-discordgoでは、```discordgo.Session.AddHandler```でイベントを受け取った際の処理を登録できます。
-しかし、引数と戻り値の指定があり、テストコードを書くことが難しいです。
+結合テストのため、discordgoの機能を使っている部分をモック化します。
+```*discordgo.Session```は引数に指定せず、```mock.Session```というinterfaceを使用します。
 
-:::details 何で書くのが難しいの？
+https://github.com/maguro-alternative/discordgo-test-sample/blob/main/testutil/mock/session.go
+
+discordgoでは、```discordgo.Session.AddHandler```でイベントを受け取った際の処理を登録できます。
+しかし、引数と戻り値の指定がある都合上、戻り値に```error```などを指定できず、正しい挙動をしたかどうかの確認ができません。
+
+:::details なぜ戻り値を指定できないのか
 ```go
 s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
     // ここに処理を書く
@@ -194,24 +199,21 @@ s.AddHandler(func(s *discordgo.Session, m *discordgo.MessageCreate) {
 cogsは、discordbotの機能を追加するためのディレクトリです。
 ```cog_handler.go```というファイルに、コグの登録処理を記述します。
 
-https://github.com/maguro-alternative/remake_bot/blob/main/bot/cogs/cog_handler.go
+https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/cogs/cog_handler.go
 
 ```cogHandler```という構造体があります。
-```db```はデータベース操作、```client```はhttp通信を行うためのクライアントを追加しています。
+```client```はhttp通信を行うためのクライアントを追加しています。
 
 ```cogHandler```には```onMessageCreate```というメゾットがあり、```discordgo.MessageCreate```イベントを受け取った際の処理を記述します。
 
-https://github.com/maguro-alternative/remake_bot/blob/main/bot/cogs/on_message_create.go
+https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/cogs/on_message_create.go
 
-**長いですね...**
 とりあえず注目してほしいところは、```onMessageCreate```メゾットです。
 
 ```go
 func (h *cogHandler) onMessageCreate(s *discordgo.Session, vs *discordgo.MessageCreate) {
 	ctx := context.Background()
-	repo := repository.NewRepository(h.db)
-	ffmpeg := onMessageCreate.NewFfmpeg(ctx)
-	err := onMessageCreateFunc(ctx, h.client, repo, ffmpeg, s, vs)
+	_, err := onMessageCreateFunc(ctx, h.client, s, s.State, vs)
 	if err != nil {
 		slog.ErrorContext(ctx, "OnMessageCreate Error", "Error:", err.Error())
 	}
@@ -224,18 +226,32 @@ func (h *cogHandler) onMessageCreate(s *discordgo.Session, vs *discordgo.Message
 そこで本来の処理を書き込んだ```onMessageCreateFunc```メゾットを作成します。
 
 ```onMessageCreate```メゾットは、```onMessageCreateFunc```メゾットを呼び出し、```error```を返します。
+ついでに何を送信したのかも返すように```*discordgo.Message```も返します。
 
 ```go
-func onMessageCreateFunc(
+func onMessageCreate(
 	ctx context.Context,
 	client *http.Client,
-	repo repository.RepositoryFunc,
-	ffmpeg onMessageCreate.FfmpegInterface,
 	s mock.Session,
+	state *discordgo.State,
 	vs *discordgo.MessageCreate,
-) error {
+) (*discordgo.Message, error) {
     // 本来の処理
 }
 ```
 
+これで正しい処理が行われたか確認できます。
+というわけで、テストコードを書いていきます。
 
+サンプルの仕様は以下の通りです。
+テストする```onMessageCreateFunc```は以下のような仕様です。
+
+- Botからのメッセージが送信された場合、何も返さない。
+- ```ping```が送信された場合、```pong```を返す。
+- ```!hello```が含まれるメッセージが送信された場合、何も返さない。
+- 上記以外の場合、```Hello, World!```を返す。
+
+https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/cogs/on_message_create_test.go
+
+```&mock.SessionMock```を引数に渡すことで、モックを使用してテストを行います。
+実際に送信はされず、送信されたとしてレスポンスを返すようにしています。

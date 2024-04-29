@@ -168,6 +168,26 @@ https://github.com/maguro-alternative/discordgo-test-sample
 │   └── main.go
 ```
 
+該当項目でも書きますが、今回行うテストするものの仕様は以下の通りです。
+- cog
+    - ```onMessageCreate```メゾット
+        - Botからのメッセージが送信された場合、何も返さない。
+        - ```ping```が送信された場合、```pong```を返す。
+        - ```!hello```が含まれるメッセージが送信された場合、何も返さない。
+        - 上記以外の場合、```Hello, World!```を返す。
+
+- commands
+    - ```command_hanlder```
+        - 登録するのはpingコマンド。
+        - 同じコマンド名は登録できない。
+        - 登録した場合、構造体にデータが格納される。(ローカルでの参照が可能)
+        - 登録に失敗した場合、構造体にデータは格納されない。
+        - ```getCommand```関数でコマンドを取得する。
+        - ```commandDelete```関数でコマンドを削除する。
+    - ```ping```
+        - 実行されると```pong```を返す。
+        - ```response```オプションを適応すると、そのオプションで指定した文字のメッセージを返す。
+
 ## 共通事項
 当たり前ですが、単体テストはdiscordgo側が行っています。
 そのため、今回書くのは**結合テスト**です。
@@ -262,6 +282,7 @@ https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/cogs/o
 ![](https://storage.googleapis.com/zenn-user-upload/f9e1ecad8ecc-20240429.png)
 
 ## commandsのテストコードの書き方
+### 登録のテスト
 
 commandsは、discordbotのスラッシュコマンドを追加するためのディレクトリです。
 ```command_handler.go```というファイルに、スラッシュコマンドの登録処理を記述します。
@@ -290,3 +311,7 @@ cogと同様に```&mock.SessionMock```を引数に渡すことで、モックを
 同じくテストを実行して、正しく処理が行われているか確認してみましょう。
 
 ![](https://storage.googleapis.com/zenn-user-upload/8172ad4d41a2-20240429.png)
+
+### 実行のテスト
+
+https://github.com/maguro-alternative/discordgo-test-sample/blob/main/bot/commands/ping.go
